@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Account Executive Mapping App</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="css/app.min.css">
+
+  <style>
+    /* TODO */
+
+    @-webkit-keyframes pulse {
+      0% {
+        background-color: #CCC;
+      }
+      25% {
+        background-color: #EEE;
+      }
+      50% {
+        background-color: #CCC;
+      }
+      75% {
+        background-color: #EEE;
+      }
+      100% {
+        background-color: #CCC;
+      }
+    }
+
+    .scroll-page .loading {
+      margin: 12px auto;
+      border: 8px solid #AAA;
+      height: 16px;
+      width: 16px;
+      background: #CCC;
+      border-radius: 16px;
+      -webkit-animation: pulse 2s ease-in-out 0s infinite;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- Page 1: Register Client Coordinates -->
+   <div class="app-page" data-page="page-1">
+
+         <div class="app-topbar red">
+           <div class="app-title">Map Client Coordinates</div>
+           <div class="right app-button" data-back></div>
+         </div>
+
+         <div class="app-content">
+           <!--<input class="app-input" type="search" placeholder="Search..">-->
+
+           <form class="app-section">
+             <input class="app-input" id="vendorid" placeholder="Vendor Id">
+             <input class="app-input" id="vendorname" placeholder="Vendor Name">
+             <input class="app-input" id="clientid" placeholder="Client Id">
+             <input class="app-input" id="clientname" name="clientname" placeholder="Client Name">
+             <input class="app-input" id="latitude" name="latitude" placeholder="Latitude">
+             <input class="app-input" id="longitude" name="longitude" placeholder="Longitude">
+
+             <div class="app-button green app-submit" id= "send-coordinates">Register</div>
+           </form>
+         </div>
+       </div>
+         <!-- ////////////////////// -->
+      <script src="js/zepto.js"></script>
+      <script src="js/app.min.js"></script>
+      <script>
+
+         App.controller('page-1', function (page) {
+
+         //Function to obtain Geo Coordinates//
+           navigator.geolocation.getCurrentPosition ( function (position) {
+
+               //Store coordinates in corresponding variables//
+               var latitude = position.coords.latitude;
+               var longitude = position.coords.longitude;
+
+              //Troubleshooting on Browsers//
+               //console.log(latitude);
+               //console.log(longitude);
+
+              //Check if coordinates were obtained//
+              if (latitude && longitude) {
+
+                document.getElementById('latitude').value = latitude;
+                document.getElementById('longitude').value = longitude;
+                console.log(latitude);
+                console.log(longitude);
+
+              } else {
+
+                document.getElementById('latitude').value = "No Data";
+                document.getElementById('longitude').value = "No Data";
+                console.log("No Data");
+                console.log("No Data");
+
+              }//end if-else lat and longitude
+
+           });// end of geo function
+
+         //Check if Register Button has been Clicked//
+           $(page).find('#send-coordinates').clickable().on('click', function () {
+
+              console.log("Register Button Clicked");
+
+               //Attempt to Send Coordinates//
+               $.ajax({
+                 type: 'GET',
+                 //Webservice Address//
+                 url: 'http://79.170.40.236/development-motoauto-hn.com/mobile-app/webservice.php?callback=response',
+                 //Data to be added to query//
+                 data: { latitude: $("#latitude").val(), longitude: $("#longitude").val(), clientname: $("#clientname").val(), clientid: $("#clientid").val(), vendorname: $("#vendorname").val(), vendorid: $("#vendorid").val()},
+                 // type of data we are expecting in return:
+                 dataType: 'jsonp',
+                 timeout: 300,
+                 context: $('body'),
+                 success: function(data) {
+
+                   if (data.success == true) {
+                     //$(page).find("#message").html("Your email was sent successfully!").show();
+                     console.log("Success");
+                   } else {
+                     //$(page).find("#message").html("Your email could not be sent - please try again later.").show();
+                     console.log("False");
+                   }
+
+                 },
+                 error: function(xhr, type) {
+
+                   console.log("Your coordinates could not be sent - please try again later.");
+                 }
+               })
+
+           }); ///// end of onClick
+         }); ///////////end of page-1
+
+   try {
+     App.restore();
+   } catch (err) {
+     App.load('page-1');
+   }
+ </script>
+
+</body>
+
+</html>
